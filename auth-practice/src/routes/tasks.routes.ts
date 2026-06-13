@@ -7,10 +7,12 @@ import {
   updateTaskHandler,
 } from "../controllers/tasks.controller.js";
 
-export const tasksRouter = Router();
+const tasksRouter = Router({ mergeParams: true });
 
 tasksRouter.get("/", listTasks);
-tasksRouter.get("/:id", readTask);
+tasksRouter.get("/:taskId/:", readTask);
 tasksRouter.post("/", createTaskHandler);
-tasksRouter.put("/:id", updateTaskHandler);
-tasksRouter.delete("/:id", deleteTaskHandler);
+tasksRouter.put("/:taskId", updateTaskHandler);
+tasksRouter.delete("/:taskId", deleteTaskHandler);
+
+export default tasksRouter;
