@@ -1,73 +1,34 @@
-import { randomUUID } from "node:crypto";
+import * as usersRepo from "../repositories/users.repository.js";
+import User from "../types/user.types.js"
 
-export interface User {
-  id: string;
-  name: string;
+export type CreateUserInput = {
   email: string;
-}
+  password_hash: string;
+  hashed_rt: string;
+};
 
-export interface CreateUserInput {
-  name: string;
+export type UpdateUserInput = Partial<{
   email: string;
+  password_hash: string;
+  hashed_rt: string;
+}>;
+
+export async function getUsers(): Promise<User[]> {
+  return usersRepo.findAllUsers();
 }
 
-export interface UpdateUserInput {
-  name?: string;
-  email?: string;
+export async function getUserById(id: number): Promise<User | null> {
+  return usersRepo.findUserById(id);
 }
 
-const users: User[] = [
-  {
-    id: randomUUID(),
-    name: "Sample User",
-    email: "user@example.com",
-  },
-];
-
-export function getUsers() {
-  return users;
+export async function createUser(input: CreateUserInput): Promise<User> {
+  return usersRepo.createUser(input);
 }
 
-export function getUserById(id: string) {
-  return users.find((user) => user.id === id);
+export async function updateUser(id: number, input: UpdateUserInput): Promise<User | null> {
+  return usersRepo.updateUser(id, input);
 }
 
-export function createUser(input: CreateUserInput) {
-  const user: User = {
-    id: randomUUID(),
-    name: input.name,
-    email: input.email,
-  };
-
-  users.push(user);
-  return user;
-}
-
-export function updateUser(id: string, input: UpdateUserInput) {
-  const user = getUserById(id);
-
-  if (!user) {
-    return undefined;
-  }
-
-  if (typeof input.name === "string") {
-    user.name = input.name;
-  }
-
-  if (typeof input.email === "string") {
-    user.email = input.email;
-  }
-
-  return user;
-}
-
-export function deleteUser(id: string) {
-  const userIndex = users.findIndex((user) => user.id === id);
-
-  if (userIndex < 0) {
-    return false;
-  }
-
-  users.splice(userIndex, 1);
-  return true;
+export async function deleteUser(id: number): Promise<number | null> {
+  return usersRepo.deleteUser(id);
 }

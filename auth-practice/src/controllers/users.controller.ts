@@ -9,47 +9,59 @@ import {
   type UpdateUserInput,
 } from "../services/users.service.js";
 
-export function listUsers(_req: Request, res: Response) {
-  res.json(getUsers());
-}
-
-export function readUser(req: Request, res: Response) {
-  const user = getUserById(req.params.id as string);
-
-  if (!user) {
-    res.status(404).json({ message: "User not found" });
-    return;
-  }
-
-  res.json(user);
-}
-
-export function createUserHandler(
-  req: Request<unknown, unknown, CreateUserInput>,
-  res: Response,
-  next: NextFunction,
-) {
+export async function listUsers(_req: Request, res: Response, next: NextFunction) {
   try {
-    const { name, email } = req.body;
-
-    if (!name || !email) {
-      res.status(400).json({ message: "name and email are required" });
-      return;
-    }
-
-    res.status(201).json(createUser({ name, email }));
+    const users = await getUsers();
+    res.json(users);
   } catch (error) {
     next(error);
   }
 }
 
-export function updateUserHandler(
+export async function readUser(req: Request, res: Response, next: NextFunction) {
+  try {
+    const id = parseInt(req.params.id as string, 10);
+    const user = await getUserById(id);
+
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    res.json(user);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function createUserHandler(
+  req: Request<unknown, unknown, CreateUserInput>,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const { email, password_hash, hashed_rt } = req.body;
+
+    if (!email || !password_hash || !hashed_rt) {
+      res.status(400).json({ message: "email, password_hash, and hashed_rt are required" });
+      return;
+    }
+
+    const user = await createUser({ email, password_hash, hashed_rt });
+    res.status(201).json(user);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function updateUserHandler(
   req: Request<{ id: string }, unknown, UpdateUserInput>,
   res: Response,
   next: NextFunction,
 ) {
   try {
-    const updatedUser = updateUser(req.params.id, req.body);
+    const id = parseInt(req.params.id as string, 10);
+    const updatedUser = await updateUser(id, req.body);
 
     if (!updatedUser) {
       res.status(404).json({ message: "User not found" });
@@ -62,13 +74,22 @@ export function updateUserHandler(
   }
 }
 
-export function deleteUserHandler(req: Request, res: Response) {
-  const removed = deleteUser(req.params.id as string);
+export async function deleteUserHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const id = parseInt(req.params.id as string, 10);
+    const removed = await deleteUser(id);
 
-  if (!removed) {
-    res.status(404).json({ message: "User not found" });
-    return;
+    if (!removed) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    res.status(204).send();
+  } catch (error) {
+    next(error);
   }
-
-  res.status(204).send();
 }
