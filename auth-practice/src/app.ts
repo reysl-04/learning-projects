@@ -2,10 +2,10 @@ import express, { Application } from "express";
 import cors from "cors";
 import morgan from "morgan";
 import helmet from "helmet";
-
+import cookieParser from "cookie-parser";
 
 import { usersRouter } from "./routes/users.routes.js";
-import { tasksRouter } from "./routes/tasks.routes.js";
+import tasksRouter from "./routes/tasks.routes.js";
 import { notFoundHandler } from "./middlewares/not-found.middleware.js";
 import { errorHandler } from "./middlewares/error.middleware.js";
 
@@ -20,6 +20,7 @@ app.use(cors({
 }));
 app.use(morgan("dev"));
 
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
