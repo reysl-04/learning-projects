@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auth Demo</title>
+    <link rel="icon" href="assets/DB6F6FBD-ABA1-41F7-91C1-525D498B595C.jpeg">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #0f1117;
+            color: #e2e8f0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        /* ── Auth screen ── */
+        #auth-screen {
+            width: 100%;
+            max-width: 380px;
+        }
+
+        .card {
+            background: #1a1d27;
+            border: 1px solid #2d3148;
+            border-radius: 12px;
+            padding: 32px;
+        }
+
+        h1 { font-size: 1.4rem; margin-bottom: 24px; color: #fff; }
+        h2 { font-size: 1rem; color: #94a3b8; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.05em; }
+
+        .tabs { display: flex; gap: 8px; margin-bottom: 24px; }
+        .tab {
+            flex: 1; padding: 8px; border: 1px solid #2d3148;
+            background: transparent; color: #94a3b8; border-radius: 6px;
+            cursor: pointer; font-size: 0.9rem; transition: all 0.15s;
+        }
+        .tab.active { background: #3b82f6; border-color: #3b82f6; color: #fff; }
+
+        .form-group { margin-bottom: 16px; }
+        label { display: block; font-size: 0.8rem; color: #94a3b8; margin-bottom: 6px; }
+        input {
+            width: 100%; padding: 10px 12px;
+            background: #0f1117; border: 1px solid #2d3148;
+            border-radius: 6px; color: #e2e8f0; font-size: 0.9rem;
+            outline: none; transition: border-color 0.15s;
+        }
+        input:focus { border-color: #3b82f6; }
+
+        .btn {
+            width: 100%; padding: 10px; border: none; border-radius: 6px;
+            font-size: 0.9rem; cursor: pointer; transition: opacity 0.15s; font-weight: 500;
+        }
+        .btn:hover { opacity: 0.85; }
+        .btn-primary { background: #3b82f6; color: #fff; }
+        .btn-secondary { background: #1e293b; color: #e2e8f0; border: 1px solid #2d3148; }
+        .btn-danger { background: #ef4444; color: #fff; }
+        .btn-warning { background: #f59e0b; color: #000; }
+        .btn-sm { width: auto; padding: 6px 14px; font-size: 0.8rem; }
+
+        .error-msg { color: #f87171; font-size: 0.8rem; margin-top: 12px; display: none; }
+
+        /* ── Dashboard ── */
+        #dashboard { display: none; width: 100%; max-width: 860px; gap: 16px; flex-direction: column; }
+
+        .row { display: flex; gap: 16px; flex-wrap: wrap; }
+        .col { flex: 1; min-width: 240px; }
+
+        /* Token status cards */
+        .token-card {
+            background: #1a1d27; border: 1px solid #2d3148;
+            border-radius: 10px; padding: 20px;
+        }
+        .token-label { font-size: 0.75rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+        .token-value {
+            font-family: monospace; font-size: 0.72rem; color: #7dd3fc;
+            word-break: break-all; line-height: 1.5; max-height: 60px;
+            overflow: hidden; text-overflow: ellipsis;
+        }
+        .token-status { display: flex; align-items: center; gap: 6px; margin-top: 10px; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .dot.green { background: #22c55e; box-shadow: 0 0 6px #22c55e; }
+        .dot.red { background: #ef4444; box-shadow: 0 0 6px #ef4444; }
+        .dot.yellow { background: #f59e0b; box-shadow: 0 0 6px #f59e0b; }
+        .dot.gray { background: #475569; }
+        .status-text { font-size: 0.8rem; color: #94a3b8; }
+        #at-countdown { font-size: 0.75rem; color: #f59e0b; margin-top: 4px; }
+
+        /* Actions */
+        .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+
+        /* Log */
+        #log-panel {
+            background: #0d1117; border: 1px solid #2d3148;
+            border-radius: 10px; padding: 0; overflow: hidden;
+        }
+        .log-header {
+            padding: 12px 16px; background: #1a1d27;
+            border-bottom: 1px solid #2d3148;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .log-header span { font-size: 0.8rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
+        #log-entries { padding: 12px; max-height: 320px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+
+        .log-entry {
+            display: flex; gap: 10px; align-items: flex-start;
+            padding: 7px 10px; border-radius: 6px; font-size: 0.8rem;
+            animation: fadeIn 0.2s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; } }
+
+        .log-entry.info    { background: #1e293b; color: #94a3b8; }
+        .log-entry.success { background: #052e16; color: #4ade80; }
+        .log-entry.error   { background: #2d0a0a; color: #f87171; }
+        .log-entry.warn    { background: #2d1f00; color: #fbbf24; }
+        .log-entry.refresh { background: #1a1a3e; color: #a78bfa; }
+
+        .log-arrow { font-size: 0.9rem; flex-shrink: 0; margin-top: 1px; }
+        .log-time { color: #475569; flex-shrink: 0; font-family: monospace; }
+        .log-msg { flex: 1; line-height: 1.4; }
+
+        /* User badge */
+        #user-badge {
+            display: flex; align-items: center; gap: 10px;
+            background: #1a1d27; border: 1px solid #2d3148;
+            border-radius: 10px; padding: 14px 20px;
+        }
+        .avatar {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: #3b82f6; display: flex; align-items: center;
+            justify-content: center; font-weight: 700; font-size: 0.9rem; flex-shrink: 0;
+        }
+        #user-email { font-size: 0.9rem; color: #e2e8f0; }
+        #user-id { font-size: 0.75rem; color: #64748b; }
+    </style>
+</head>
+<body>
+
+<!-- AUTH SCREEN -->
+<div id="auth-screen">
+    <div class="card">
+        <h1>Auth Demo</h1>
+
+        <div class="tabs">
+            <button class="tab active" id="tab-signin" onclick="switchTab('signin')">Sign In</button>
+            <button class="tab" id="tab-signup" onclick="switchTab('signup')">Sign Up</button>
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" placeholder="you@example.com">
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" placeholder="••••••••">
+        </div>
+
+        <button class="btn btn-primary" id="auth-btn" onclick="handleAuth()">Sign In</button>
+        <p class="error-msg" id="auth-error"></p>
+    </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+
+    <div id="user-badge">
+        <div class="avatar" id="avatar">?</div>
+        <div>
+            <div id="user-email">—</div>
+            <div id="user-id">—</div>
+        </div>
+        <button class="btn btn-danger btn-sm" style="margin-left:auto" onclick="handleLogout()">Logout</button>
+    </div>
+
+    <div class="row">
+        <!-- AT card -->
+        <div class="col token-card">
+            <div class="token-label">Access Token (AT) — in JS memory</div>
+            <div class="token-value" id="at-display">—</div>
+            <div class="token-status">
+                <div class="dot gray" id="at-dot"></div>
+                <span class="status-text" id="at-status">none</span>
+            </div>
+            <div id="at-countdown"></div>
+        </div>
+
+        <!-- RT card -->
+        <div class="col token-card">
+            <div class="token-label">Refresh Token (RT) — httpOnly cookie</div>
+            <div class="token-value" style="color:#a78bfa">Stored in cookie — JS cannot read it</div>
+            <div class="token-status">
+                <div class="dot gray" id="rt-dot"></div>
+                <span class="status-text" id="rt-status">none</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" style="align-items:center">
+        <div class="actions">
+            <button class="btn btn-primary btn-sm" onclick="fetchMe()">Fetch /auth/me</button>
+            <button class="btn btn-warning btn-sm" onclick="simulateExpiry()">Simulate AT Expiry</button>
+            <button class="btn btn-secondary btn-sm" onclick="clearLog()">Clear Log</button>
+        </div>
+    </div>
+
+    <div id="log-panel">
+        <div class="log-header">
+            <span>Request Log</span>
+            <span id="log-count" style="color:#475569">0 events</span>
+        </div>
+        <div id="log-entries">
+            <div class="log-entry info">
+                <span class="log-arrow">→</span>
+                <span class="log-msg">Log will appear here. Try fetching <strong>/auth/me</strong> or simulating an expired AT.</span>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script type="module" src="main.mjs"></script>
+</body>
+</html>

@@ -1,0 +1,2 @@
+ALTER TABLE IF EXISTS users
+ADD CONSTRAINT email_unique UNIQUE (email);
