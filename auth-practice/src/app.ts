@@ -17,7 +17,7 @@ export const app: Application = express();
 
 app.use(helmet());
 app.use(cors({
-    origin: process.env.CORS_ORIGIN ?? "*",
+    origin: (origin, callback) => callback(null, origin ?? "null"),
     credentials: true,
 }));
 app.use(morgan("dev"));
@@ -26,6 +26,8 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(passportInstance.initialize());
+
+app.use(express.static("."));
 
 app.get("/health", (_req, res) => {
   res.json({ status: "ok" });
