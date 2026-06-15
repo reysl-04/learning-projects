@@ -1,5 +1,5 @@
 import pool from "../db/pool.js";
-import User from "../types/user.types.js"
+import { User, CreateUserInput, UpdateUserInput } from "../types/user.types.js"
 
 
 export async function findAllUsers(): Promise<User[]> {
@@ -25,11 +25,7 @@ export async function findUserByEmail(email: string): Promise<User | null> {
   return result.rows[0] || null;
 }
 
-export async function createUser(data: {
-  email: string;
-  password_hash: string;
-  hashed_rt: string;
-}): Promise<User> {
+export async function createUser(data: CreateUserInput): Promise<User> {
   const result = await pool.query(
     "INSERT INTO users (email, password_hash, hashed_rt) VALUES ($1, $2, $3) RETURNING id, email, password_hash, hashed_rt, created_at, updated_at",
     [data.email, data.password_hash, data.hashed_rt]
@@ -39,11 +35,7 @@ export async function createUser(data: {
 
 export async function updateUser(
   id: number,
-  data: Partial<{
-    email: string;
-    password_hash: string;
-    hashed_rt: string;
-  }>
+  data: Partial<UpdateUserInput>
 ): Promise<User | null> {
   const updates: string[] = [];
   const values: unknown[] = [id];

@@ -1,17 +1,6 @@
 import * as usersRepo from "../repositories/users.repository.js";
-import User from "../types/user.types.js"
+import {User, CreateUserInput, UpdateUserInput} from "../types/user.types.js"
 
-export type CreateUserInput = {
-  email: string;
-  password_hash: string;
-  hashed_rt: string;
-};
-
-export type UpdateUserInput = Partial<{
-  email: string;
-  password_hash: string;
-  hashed_rt: string;
-}>;
 
 export async function getUsers(): Promise<User[]> {
   return usersRepo.findAllUsers();

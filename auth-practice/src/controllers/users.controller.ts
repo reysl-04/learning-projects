@@ -5,9 +5,9 @@ import {
   getUserById,
   getUsers,
   updateUser,
-  type CreateUserInput,
-  type UpdateUserInput,
 } from "../services/users.service.js";
+
+import type { CreateUserInput, UpdateUserInput } from "../types/user.types.js";
 
 export async function listUsers(_req: Request, res: Response, next: NextFunction) {
   try {
