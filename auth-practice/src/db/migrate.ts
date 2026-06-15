@@ -40,7 +40,7 @@ async function migrate() {
             await client.query(sql)
             await client.query(`INSERT INTO migrations (filename) VALUES ($1)`, [file])
             await client.query('COMMIT')
-            console.log(`Applied: {file}`)
+            console.log(`Applied: ${file}`)
         } catch(e) {
             await client.query('ROLLBACK')
             throw e
