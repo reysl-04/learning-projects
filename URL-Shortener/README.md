@@ -7,7 +7,8 @@ It is deliberately built with **zero runtime dependencies** — Node's built-in
 HTTP server, built-in SQLite, and native TypeScript execution — so the whole
 system fits in your head. The interesting part is not the code, though. It is
 what happens when you try to run this on more than one machine. That is covered
-in [Distributed systems problems](#distributed-systems-problems).
+in [Distributed systems problems](#distributed-systems-problems), and in depth in
+the study guide: **[Distributed Systems & the URL Shortener](./docs/README.md)**.
 
 ```
 POST /api/links  ──▶ validate ──▶ generate code ──▶ INSERT (unique) ──▶ 201
@@ -156,6 +157,12 @@ Everything above works nicely on one box. Now imagine 10,000 redirects/second,
 100 million links, and a dozen servers behind a load balancer. The shortener is
 no longer a CRUD app; it becomes a study in **uniqueness, caching, and partial
 failure**. These are the problems you hit, roughly in the order you hit them.
+
+> **Want the full picture?** The
+> [study guide](./docs/README.md) covers the underlying concepts (replication,
+> consistency, consensus, partitioning, idempotency), expands each problem below,
+> and ends with a four-week reading path, curated resources, and self-check
+> questions. The [labs](./labs/README.md) let you reproduce each failure.
 
 ### 1. Unique code allocation and collisions
 
