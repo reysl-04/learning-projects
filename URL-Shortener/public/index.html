@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <title>Shorten it — a tiny URL shortener</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%237cf7c4'/%3E%3Cpath d='M30 62c8 8 20 8 28 0l10-10' stroke='%230b0f14' stroke-width='9' stroke-linecap='round' fill='none'/%3E%3Cpath d='M70 38c-8-8-20-8-28 0L32 48' stroke='%230b0f14' stroke-width='9' stroke-linecap='round' fill='none'/%3E%3C/svg%3E"
+    />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="hero">
+        <p class="eyebrow">distributed systems playground</p>
+        <h1>Shorten it<span>.</span></h1>
+        <p class="lede">
+          Paste a long link, get a seven-character one. Backed by SQLite, a
+          cache-aside read path, and a rate limiter.
+        </p>
+      </header>
+
+      <section class="card" aria-labelledby="form-title">
+        <h2 id="form-title" class="sr-only">Create a short link</h2>
+        <form id="shorten-form" novalidate>
+          <div class="field">
+            <label class="label" for="url">Destination URL</label>
+            <input
+              id="url"
+              name="url"
+              type="url"
+              inputmode="url"
+              autocomplete="off"
+              spellcheck="false"
+              placeholder="https://example.com/a/really/long/path?with=params"
+              required
+            />
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label class="label" for="alias">Custom alias <em>optional</em></label>
+              <input
+                id="alias"
+                name="alias"
+                type="text"
+                autocomplete="off"
+                spellcheck="false"
+                maxlength="32"
+                pattern="[0-9A-Za-z_\-]{3,32}"
+                placeholder="launch-notes"
+              />
+              <span class="hint">3–32 letters, digits, “-” or “_”</span>
+            </div>
+
+            <div class="field">
+              <label class="label" for="ttl">Expires</label>
+              <select id="ttl" name="ttl">
+                <option value="0">Never</option>
+                <option value="3600">In 1 hour</option>
+                <option value="86400">In 1 day</option>
+                <option value="604800">In 1 week</option>
+                <option value="2592000">In 30 days</option>
+              </select>
+            </div>
+          </div>
+
+          <button type="submit" id="submit" class="primary">
+            <span class="btn-label">Shorten</span>
+            <span class="spinner" aria-hidden="true"></span>
+          </button>
+        </form>
+
+        <p id="error" class="error" role="alert" hidden></p>
+
+        <div id="result" class="result" hidden>
+          <div class="result-head">
+            <span class="dot" aria-hidden="true"></span>
+            <span id="result-caption">Your short link is ready</span>
+          </div>
+          <div class="result-row">
+            <input id="short-url" class="short-url" type="text" readonly />
+            <button id="copy-result" class="ghost" type="button">Copy</button>
+            <a id="open-result" class="ghost" target="_blank" rel="noopener noreferrer">Open</a>
+          </div>
+          <p class="meta">
+            <span id="result-expiry">Never expires</span>
+            <span aria-hidden="true">·</span>
+            <span id="result-clicks">0 clicks</span>
+          </p>
+        </div>
+      </section>
+
+      <section class="recent" aria-labelledby="recent-title">
+        <div class="recent-head">
+          <h2 id="recent-title">Recent links</h2>
+          <span id="recent-count" class="pill">0</span>
+        </div>
+        <ul id="recent-list" class="recent-list"></ul>
+        <p id="recent-empty" class="empty">
+          Links you create in this browser will show up here.
+        </p>
+      </section>
+
+      <footer class="footer">
+        <span>302 redirects · LRU + negative cache · atomic click counts</span>
+        <a href="/health">health</a>
+      </footer>
+    </main>
+
+    <script src="/app.js" defer></script>
+  </body>
+</html>
